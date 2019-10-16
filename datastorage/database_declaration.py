@@ -1,36 +1,43 @@
+import logging
+from os import join
 from sqlalchemy import exc, Column, Integer, String, DateTime, ForeignKey, \
                         Float, Boolean, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy import create_engine
 
+logger = logging.getLogger("sensorboard.database")
 
-db_uri = "sqlite:///data/example.db"
+FILENAME_DATABASE = "sensorboard_data.db"
+PATH_DATABASE = "data/"
+path_database = join(PATH_DATABASE, FILENAME_DATABASE)
+db_uri = f"sqlite:///{path_database}"
+logger.debug(f"Database file will be named {path_database}")
 Base = declarative_base()
 engine = create_engine(db_uri, echo=True)
 
 
 class MeasurementModel(Base):
     __tablename__ = "measurements"
-    #__table_args__ = {"schema": "smarthome"}
+#    __table_args__ = {"schema": "smarthome"}
 
     id = Column(Integer,
                 primary_key=True,
                 nullable=False)
     # MODIFIED
-    sensor_id = Column(Integer,nullable=True)
+    sensor_id = Column(Integer, nullable=True)
     node_uuid = Column(String(120),
-                        nullable=True)
+                       nullable=True)
     timestamp = Column(DateTime,
                        nullable=False)
     temperature = Column(Float,
                          nullable=True)
     humidity = Column(Float,
-                         nullable=True)
+                      nullable=True)
     pressure = Column(Float,
-                         nullable=True)
+                      nullable=True)
     light_on = Column(Boolean,
-                         nullable=True)
+                      nullable=True)
 
     def __repr__(self):
         return f"<Measurement Model {self.id}>"
@@ -38,7 +45,7 @@ class MeasurementModel(Base):
 
 class SensorModel(Base):
     __tablename__ = "sensors"
-    #__table_args__ = {"schema": "smarthome"}
+#    __table_args__ = {"schema": "smarthome"}
 
     id = Column(Integer,
                 primary_key=True,
@@ -59,7 +66,7 @@ class SensorModel(Base):
 
 class NodeModel(Base):
     __tablename__ = "nodes"
-    #__table_args__ = {"schema": "smarthome"}
+#    __table_args__ = {"schema": "smarthome"}
 
     id = Column(Integer,
                 primary_key=True,
@@ -70,7 +77,7 @@ class NodeModel(Base):
     location = Column(String(80),
                       nullable=True)
     description = Column(Text,
-                        nullable=True)
+                         nullable=True)
 
     def __repr__(self):
         return f"<Node Model {self.id}>"

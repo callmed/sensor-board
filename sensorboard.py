@@ -1,7 +1,17 @@
 import sys
+import logging
+import os
+import signal
+import time
+import datastorage.database_declaration as db_declaration
+# rename module to data_plot
+import datastorage.plot_data as plot_data
+import sensors.boards as boards
+from sensors.sensors import PIN_SENSOR_DHT22, PIN_SENSOR_LIGHT, RASPBERRYPI
+
 if os.uname()[4][:3] == "arm":
     RASPBERRYPI = True
-else
+else:
     RASPBERRYPI = False
 
 try:
@@ -10,24 +20,6 @@ try:
 except ImportError as err:
     print(f"Could not import module, {err}. Automatic installation started")
     os.system("python -m pip install schedule")
-
-import logging, logging.config
-import os
-import signal
-import time
-
-import datastorage.database_declaration as db_declaration
-# rename module to data_plot
-import datastorage.plot_data as plot_data
-from sensors.sensors import PIN_SENSOR_DHT22, PIN_SENSOR_LIGHT, RASPBERRYPI
-import sensors.boards as boards
-
-
-# Load the logging configuration
-logging.config.fileConfig('data/logging.conf',
-                                defaults={"logfilename": "mylog.log",
-                                'disable_existing_loggers': False})
-logger = logging.getLogger("sensorboard")
 
 
 SENSOR_TRIGGER_MINUTES = 1
@@ -49,15 +41,15 @@ def signal_handler_termination(sig, frame):
 def main():
     # Print sensor data only in non-raspberry mode due to missing display
     if not RASPBERRYPI:
-        data = plot_data.read_data_from_db( db_declaration.session,
-                                            db_declaration.MeasurementModel)
+        data = plot_data.read_data_from_db(db_declaration.session,
+                                           db_declaration.MeasurementModel)
         plot_data.plot_data_multiplots(data=data)
 
     sensorboard = boards.SensorBoard(node="RPI-BRD",
-                                pins={
-                                        "ptemp":PIN_SENSOR_DHT22,
-                                        "plight":PIN_SENSOR_LIGHT},
-                                simulation=False)
+                                     pins={
+                                        "ptemp": PIN_SENSOR_DHT22,
+                                        "plight": PIN_SENSOR_LIGHT},
+                                     simulation=False)
     # ToDo: Include display init into board class init
     # ToDo: Show logo after display init
     sensorboard.init_display()
@@ -68,7 +60,7 @@ def main():
                                             database=db_declaration.session)
 
     # Update displayed values from sensor(s)
-    schedule.every( DISPLAY_TRIGGER_MINUTES).minutes.do(
+    schedule.every(DISPLAY_TRIGGER_MINUTES).minutes.do(
                                             sensorboard.display)
 
     while True:
@@ -81,21 +73,36 @@ def main():
         schedule.run_pending()
         time.sleep(1)
 
-        #try:
-            # Update display values
-            #schedule.every(DISPLAY_TRIGGER_MINUTES).minutes.do(
-            #
-            #                                    sensorboard.display)
+        # try:
+        #    Update display values
+        #   schedule.every(DISPLAY_TRIGGER_MINUTES).minutes.do(
+        #
+        #                                    sensorboard.display)
         #    pass
-        #except NameError:
+        # except NameError:
         #    logger.warning("Module schedule not loaded somehow")
         #    break
 
 
 if __name__ == "__main__":
+    import logging.config
+    # Load the logging configuration
+    logging.config.fileConfig('data/logging.conf',
+                              defaults={"logfilename": "mylog.log",
+                                        'disable_existing_loggers': False}
+                              )
+
+#    logger = logging.getLogger("sensorboard")
+    logger = logging.getLogger("sensorboard")
     # ToDo: Make script arguments available
-    if RASPBERRYPI = True
+    if RASPBERRYPI:
         logger.debug("RaspberryPi mode active")
     else:
         logger.debug("Non-RaspberryPi mode")
     main()
+
+# Links to read_data_from_db
+# https://www.toptal.com/python/python-design-patterns
+# https://lintlyci.github.io/Flake8Rules/
+# https://docs.python.org/2/howto/logging.html
+# https://www.oreilly.com/library/view/head-first-python/9781491919521/ch04.html
