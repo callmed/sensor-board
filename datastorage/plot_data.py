@@ -1,4 +1,4 @@
-import sys
+#import sys
 import logging
 from os import system
 from datetime import datetime, timedelta
@@ -31,9 +31,10 @@ DATE_DELTA_HOURS = 1
 DATE_DELTA_DAYS = 0
 
 # Define array datatype of columns
-dt = np.dtype[('temperature', 'f4'),
+dt = np.dtype([('temperature', 'f4'),
               ('humidity', 'f4'),
               ('timestamp', 'datetime64[ms]')]
+              )
 
 
 def read_data_from_db(conn, table, **kwargs):

@@ -10,14 +10,11 @@ logger = logging.getLogger("sensorboard")
 
 try:
     # Non-existent modules on non-raspberry pi systems
-    #    import Adafruit_DHT
-    #    import RPi.GPIO as GPIO
     # Display
-    #    import Adafruit_GPIO.SPI as SPI
     import Adafruit_SSD1306
     # Image functions
     from PIL import Image
-#    from PIL import ImageDraw
+    from PIL import ImageDraw
     from PIL import ImageFont
     RASPBERRYPI = True
 except ImportError:
@@ -76,15 +73,6 @@ class SensorBoard:
                               + (self.sensor_light._last_reading, ))
         return (self._last_reading + (self._last_timestamp, ))
 
-#       ### NON-THREADED VERSION ###
-        # Sensor.read function must be started with 'threaded=False'
-#        humidity, temperature = self.sensor_temperature.read()
-#        light = self.sensor_light.read()
-
-#        self._last_reading = (humidity, temperature, light)
-#        print(f"Timestamp: {self._last_timestamp}, Light_On: {light}, " \
-#                    f"Temperature: {temperature}, Humidity: {humidity}")
-
     def store(self, value_return=False):
         self.read()
         self.logger.info(f"<{__class__.__name__} "
@@ -129,16 +117,16 @@ class SensorBoard:
 
         # Create blank image for drawing.
         # Make sure to create image with mode '1' for 1-bit color.
-        # self.image = Image.new('1', (self.disp.width, self.disp.height))
-        # self.draw = ImageDraw.Draw(self.image)
+        self.image = Image.new('1', (self.disp.width, self.disp.height))
+        self.draw = ImageDraw.Draw(self.image)
 
-    def display_logo(self):
+    def display_logo(self, path_logo=None):
         """ Load monochrome bitmap and show it on display."""
         if self.disp.height == 64:
-            image = Image.open("./data/mylogo64.ppm").convert("1")
+            image = Image.open(path_logo).convert("1")
             logger.debug("Image loaded for 64 pixel height-display")
         else:
-            image = Image.open("./data/mylogo32.ppm").convert("1")
+            image = Image.open(path_logo).convert("1")
             logger.debug("Image loaded for 32 pixel height-display")
         # Display image
         logger.debug("Display image now")

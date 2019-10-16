@@ -39,49 +39,53 @@ def signal_handler_termination(sig, frame):
 
 
 def main():
-    # Print sensor data only in non-raspberry mode due to missing display
     if not RASPBERRYPI:
+        # Print sensor data only in non-raspberry mode due to missing display
         data = plot_data.read_data_from_db(db_declaration.session,
                                            db_declaration.MeasurementModel)
         plot_data.plot_data_multiplots(data=data)
+    else:
+        sensorboard = boards.SensorBoard(node="RPI-BRD",
+                                         pins={
+                                            "ptemp": PIN_SENSOR_DHT22,
+                                            "plight": PIN_SENSOR_LIGHT},
+                                         simulation=False)
+        # ToDo: Include display init into board class init
+        # ToDo: Show logo after display init
+        try:
+            sensorboard.init_display()
+            sensorboard.display_logo(path_logo="data/dpslogo64.ppm")
+        except NameError as err:
+            logger.warning("Failed initialization of display", err)
 
-    sensorboard = boards.SensorBoard(node="RPI-BRD",
-                                     pins={
-                                        "ptemp": PIN_SENSOR_DHT22,
-                                        "plight": PIN_SENSOR_LIGHT},
-                                     simulation=False)
-    # ToDo: Include display init into board class init
-    # ToDo: Show logo after display init
-    sensorboard.init_display()
-
-    # Gather sensor data regularly
-    schedule.every(SENSOR_TRIGGER_MINUTES).minutes.do(
+        # Gather sensor data regularly
+        schedule.every(SENSOR_TRIGGER_MINUTES).minutes.do(
                                             sensorboard.store2database,
                                             database=db_declaration.session)
 
-    # Update displayed values from sensor(s)
-    schedule.every(DISPLAY_TRIGGER_MINUTES).minutes.do(
-                                            sensorboard.display)
+        # Update displayed values from sensor(s)
+        schedule.every(DISPLAY_TRIGGER_MINUTES).minutes.do(
+                                            sensorboard.display_values)
 
-    while True:
-        # Define process signal reactions
-        signal.signal(signal.SIGINT, signal_handler_keyboard)
-        signal.signal(signal.SIGTERM, signal_handler_termination)
-        signal.signal(signal.SIGUSR1, signal_handler_termination)
-        signal.signal(signal.SIGUSR2, signal_handler_termination)
+        while True:
+            # Define process signal reactions
+            signal.signal(signal.SIGINT, signal_handler_keyboard)
+            signal.signal(signal.SIGTERM, signal_handler_termination)
+            signal.signal(signal.SIGUSR1, signal_handler_termination)
+            signal.signal(signal.SIGUSR2, signal_handler_termination)
 
-        schedule.run_pending()
-        time.sleep(1)
+            schedule.run_pending()
+            time.sleep(1)
 
-        # try:
-        #    Update display values
-        #   schedule.every(DISPLAY_TRIGGER_MINUTES).minutes.do(
-        #
-        #                                    sensorboard.display)
-        #    pass
-        # except NameError:
-        #    logger.warning("Module schedule not loaded somehow")
-        #    break
+            # try:
+            #    Update display values
+            #   schedule.every(DISPLAY_TRIGGER_MINUTES).minutes.do(
+            #
+            #                                    sensorboard.display)
+            #    pass
+            # except NameError:
+            #    logger.warning("Module schedule not loaded somehow")
+            #    break
 
 
 if __name__ == "__main__":

@@ -12,13 +12,6 @@ try:
     # Non-existent modules on non-raspberry pi systems
     import Adafruit_DHT
     import RPi.GPIO as GPIO
-    # Display
-#    import Adafruit_GPIO.SPI as SPI
-#    import Adafruit_SSD1306
-    # Image functions
-#    from PIL import Image
-#    from PIL import ImageDraw
-#    from PIL import ImageFont
     RASPBERRYPI = True
 except ImportError:
     RASPBERRYPI = False

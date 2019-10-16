@@ -1,5 +1,5 @@
 import logging
-from os import join
+from os.path import join
 from sqlalchemy import exc, Column, Integer, String, DateTime, ForeignKey, \
                         Float, Boolean, Text
 from sqlalchemy.ext.declarative import declarative_base
