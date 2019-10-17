@@ -7,48 +7,54 @@ import logging
 logger = logging.getLogger("sensorboard.notification")
 
 
-class Notification:
-    """ Class to contain a flexible number of attributes to publish in
-        journalctl logfile.
+class JournalctlNotification:
+    """ This class sends data into journal.
+        At the beginning every instance's payload is completely empty and
+        must be filled with a dictionary.
+
+        Broadcasting an instance send always the complete payload to journal.
     """
 
-    def __init__(self, node_id, sensor_id):
+    def __init__(self, message_id, node_id, sensor_id):
         self.logger = logging.getLogger("notifier")
-        self.__uuid = uuid4()
-        self._node_id = node_id
-        self.sensor_id = sensor_id
+        self.__message_id = message_id
+        self.__node_id = node_id
+        self.__sensor_id = sensor_id
         self._payload = dict()
         self.logger.debug(f"<{__class__.__name__} Instance created: "
-                          f"notify_uuid={self.__uuid}, "
+                          f"notify_uuid={self.__message_id}, "
                           f"source={self.__sensor_id}@{self._node_id}>")
 
-    def update(self, **kwargs):
-        pass
-
-    def init_payload(keywords: list) -> bool:
-        pass
-
-    def add_keywords(keywords: list) -> bool:
-        pass
-
-    def get_keywords(self, keywords=None) -> list:
-        """ If keywords are given, only those were returned.
-            Else, all keywords are returned.
+    def update(self, **kwargs) -> bool:
+        """ Changes the value of given keywords. Not existing keywords
+            are ignored and FALSE is returned.
         """
         pass
 
-    def get_payload(self) -> dict:
+    def init_payload(keywords: list) -> bool:
+        """ Should be called after class initialization with a list of valid
+            keywords. The initial value is NONE for each.
+        """
         pass
 
-    def update_payload(self, **kwargs) -> bool:
+    def get_keywords(self, keywords=None) -> dict:
+        """ All keywords available in instance are returned as dictionary.
+            If a list of keywords is provided, a dictionary containing only
+            these keywords is returned.
+        """
         pass
 
-    def send_payload() -> bool:
-        pass
+    @property
+    def payload(self):
+        """ Returns the current payload. """
+        return self._payload
 
     def broadcast(self) -> bool:
-        journal.send(self.message, self.payload)
+        """ Sends payload to journal if not empty. """
+        if self._payload:
+            journal.send(self.message, self._payload)
 
+    # ToDo: Double check all used variables, maybe non-sense is still there!
     def __str__(self):
         return f"Node:={self.__sensor_node} SID:={self.__sensor_id} \
                 MSG:={self.message} MSGID:={self.message_id}"
