@@ -1,4 +1,3 @@
-#import sys
 import logging
 from os import system
 from datetime import datetime, timedelta
@@ -49,7 +48,7 @@ def read_data_from_db(conn, table, **kwargs):
     return X
 
 
-def plot_data_multiplots(data):
+def plot_multiplots(data):
     """ Plot data into two separate plots."""
     plt.subplot(2, 1, 1)
     plt.plot(data["timestamp"], data["temperature"], 'o-')
@@ -66,7 +65,7 @@ def plot_data_multiplots(data):
     plt.show()
 
 
-def plot_data(data):
+def plot(data):
     # contrained_layout resizes main window to fit all labels
     fig, ax = plt.subplots(constrained_layout=False)
     fig.suptitle("This is a figure sub-title")
@@ -79,7 +78,7 @@ def plot_data(data):
     plt.show()
 
 
-def plot_data_default(data):
+def plot_default(data):
     """ Plot data in a default style plot."""
     logger.info("Start plogging data")
     date_start = data["timestamp"][0]

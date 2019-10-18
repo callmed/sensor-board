@@ -4,8 +4,7 @@ import os
 import signal
 import time
 import datastorage.database_declaration as db_declaration
-# rename module to data_plot
-import datastorage.plot_data as plot_data
+import datastorage.data_plot as dplot
 import sensors.boards as boards
 from sensors.sensors import PIN_SENSOR_DHT22, PIN_SENSOR_LIGHT, RASPBERRYPI
 
@@ -41,9 +40,9 @@ def signal_handler_termination(sig, frame):
 def main():
     if not RASPBERRYPI:
         # Print sensor data only in non-raspberry mode due to missing display
-        data = plot_data.read_data_from_db(db_declaration.session,
-                                           db_declaration.MeasurementModel)
-        plot_data.plot_data_multiplots(data=data)
+        data = dplot.read_data_from_db(db_declaration.session,
+                                       db_declaration.MeasurementModel)
+        dplot.plot_multiplots(data=data)
     else:
         sensorboard = boards.SensorBoard(node="RPI-BRD",
                                          pins={

@@ -1,13 +1,11 @@
 from systemd import journal
-from uuid import uuid4
-import time
 import logging
 
 
 logger = logging.getLogger("sensorboard.notification")
 
 
-class JournalctlNotification:
+class JournalCtlNotification:
     """ This class sends data into journal.
         At the beginning every instance's payload is completely empty and
         must be filled with a dictionary.
@@ -16,33 +14,40 @@ class JournalctlNotification:
     """
 
     def __init__(self, message_id, node_id, sensor_id):
-        self.logger = logging.getLogger("notifier")
+        self.logger = logging.getLogger("notifier.journal")
         self.__message_id = message_id
         self.__node_id = node_id
         self.__sensor_id = sensor_id
         self._payload = dict()
         self.logger.debug(f"<{__class__.__name__} Instance created: "
-                          f"notify_uuid={self.__message_id}, "
+                          f"message-id={self.__message_id}, "
                           f"source={self.__sensor_id}@{self._node_id}>")
 
     def update(self, **kwargs) -> bool:
         """ Changes the value of given keywords. Not existing keywords
             are ignored and FALSE is returned.
         """
-        pass
+        error_update = False
+        for key, value in kwargs:
+            try:
+                self._payload[key] = value
+            except KeyError:
+                logger.warning(f"Unknow key cannot be updated, {key, value}")
+                error_update = True
+                continue
+        return error_update is False
 
-    def init_payload(keywords: list) -> bool:
+    def payload_init(self, keywords: list) -> bool:
         """ Should be called after class initialization with a list of valid
             keywords. The initial value is NONE for each.
         """
-        pass
-
-    def get_keywords(self, keywords=None) -> dict:
-        """ All keywords available in instance are returned as dictionary.
-            If a list of keywords is provided, a dictionary containing only
-            these keywords is returned.
-        """
-        pass
+        print(f"Keywords-Type:{type(keywords)}")
+        if keywords is not None:
+            try:
+                self._payload = {k: None for k in keywords}
+            except KeyError:
+                logger.debug("Error in payload initialization")
+        return self._payload is not None
 
     @property
     def payload(self):
@@ -51,13 +56,35 @@ class JournalctlNotification:
 
     def broadcast(self) -> bool:
         """ Sends payload to journal if not empty. """
-        if self._payload:
-            journal.send(self.message, self._payload)
+        if self._payload is not None:
+            journal.send(str(self.__message_id), self._payload)
+            logger.info(f"Notification ({self.__message_id}) broadcasted")
+        else:
+            logger.warning("Notification not broadcasted due to empty payload")
 
-    # ToDo: Double check all used variables, maybe non-sense is still there!
+    @property
+    def keywords(self, keywords=None) -> dict:
+        """ All keywords available in instance are returned as dictionary.
+            If a list of keywords is provided, a dictionary containing only
+            these keywords is returned.
+        """
+        if keywords is None:
+            return self._payload.items()
+        else:
+            temp_payload = dict()
+            for key in keywords.keys():
+                try:
+                    temp_payload[key] = self._payload[key]
+                except KeyError:
+                    logger.debug(f"Unknown Key-Value {key} requested")
+                    continue
+                finally:
+                    return temp_payload
+
     def __str__(self):
-        return f"Node:={self.__sensor_node} SID:={self.__sensor_id} \
-                MSG:={self.message} MSGID:={self.message_id}"
+        return f"SENSOR: {self.__sensor_id}@{self.__node_id}; " \
+               f"MESSAGE-ID: {self.__message_id} ; PAYLOAD: {self._payload}"
 
     def __repr(self):
-        return f"<Notification('{self.message}', {self.message_id})>"
+        return f"<Notification({self.__message_id}, {self.__node_id}, " \
+               f"{self.__sensor_id})>"
