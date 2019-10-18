@@ -52,7 +52,7 @@ def main():
         # ToDo: Include display init into board class init
         # ToDo: Show logo after display init
         try:
-            sensorboard.init_display()
+            sensorboard.display_init()
             sensorboard.display_logo(path_logo="data/dpslogo64.ppm")
         except NameError as err:
             logger.warning("Failed initialization of display", err)
@@ -76,16 +76,6 @@ def main():
             schedule.run_pending()
             time.sleep(1)
 
-            # try:
-            #    Update display values
-            #   schedule.every(DISPLAY_TRIGGER_MINUTES).minutes.do(
-            #
-            #                                    sensorboard.display)
-            #    pass
-            # except NameError:
-            #    logger.warning("Module schedule not loaded somehow")
-            #    break
-
 
 if __name__ == "__main__":
     import logging.config
@@ -95,7 +85,6 @@ if __name__ == "__main__":
                                         'disable_existing_loggers': False}
                               )
 
-#    logger = logging.getLogger("sensorboard")
     logger = logging.getLogger("sensorboard")
     # ToDo: Make script arguments available
     if RASPBERRYPI:

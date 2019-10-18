@@ -117,7 +117,7 @@ class SensorBoard:
                           f"UUID={self._uuid}, Node={self.node}>")
         return True
 
-    def init_display(self):
+    def display_init(self):
         rst = 24
         # 128x64 display with hardware I2C:
         self.disp = Adafruit_SSD1306.SSD1306_128_64(rst=rst)
