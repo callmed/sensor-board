@@ -37,6 +37,17 @@ def signal_handler_termination(sig, frame):
     sys.exit(1)
 
 
+# import sensors.Adafruit_BME280
+# bme280 = sensors.Adafruit_BME280.BME280()
+
+
+# DEMO BME280
+# def demo_bme280():
+#    print(f"Temp: {bme280.read_temperature()}, "
+#          f"Humid: {bme280.read_humidity()}, "
+#          f"Pres: {bme280.read_pressure()}")
+
+
 def main():
     if not RASPBERRYPI:
         # Print sensor data only in non-raspberry mode due to missing display
@@ -53,9 +64,12 @@ def main():
         # ToDo: Show logo after display init
         try:
             sensorboard.display_init()
-            sensorboard.display_logo(path_logo="data/dpslogo64.ppm")
         except NameError as err:
             logger.warning("Failed initialization of display", err)
+
+        # DEMO BME280
+        # schedule.every(SENSOR_TRIGGER_MINUTES).minutes.do(
+        #                                    demo_bme280)
 
         # Gather sensor data regularly
         schedule.every(SENSOR_TRIGGER_MINUTES).minutes.do(

@@ -1,4 +1,4 @@
-import sensors.sensors as sensors
+import sensors.sensors
 from datetime import datetime
 from datastorage.database_declaration import MeasurementModel, exc
 from uuid import uuid4
@@ -12,7 +12,7 @@ try:
     # Non-existent modules on non-raspberry pi systems
     # Display
     import Adafruit_SSD1306
-    import Adafruit_BME280
+    import sensors.Adafruit_BME280
     # Image functions
     from PIL import Image
     from PIL import ImageDraw
@@ -35,15 +35,12 @@ except ImportError:
 #     "SENSOR_MEA_HUMIDITY": self.humidity
 # }
 
-I2CADDR_SENSOR_LIGHT_TSL2591 = "29"
-I2CADDR_SENSOR_LIGHT_BME280 = "76"
-I2CADDR_DISPLAY_SSD1306 = "3C"
 
-
+# ToDo: Make results available as dictionarys
 class SensorBoard:
     def __init__(self, node=None, pins={
-                                        "ptemp": sensors.PIN_SENSOR_DHT22,
-                                        "plight": sensors.PIN_SENSOR_LIGHT},
+                                "ptemp": sensors.sensors.PIN_SENSOR_DHT22,
+                                "plight": sensors.sensors.PIN_SENSOR_LIGHT},
                  description=None, simulation=False):
         self.logger = logging.getLogger(__name__)
         self._uuid = uuid4()
@@ -54,14 +51,17 @@ class SensorBoard:
         self.pin_temp = pins["ptemp"]
         self.pin_light = pins["plight"]
 
-        self.sensor_bme280 = Adafruit_BME280.BME280()
-
-        self.sensor_temperature = sensors.SensorDHT22(
+        self.sensor_bme280 = sensors.sensors.SensorBME280(
+                                                pin=None,
+                                                name="BME280",
+                                                node=self.node,
+                                                simulation=self._simulation)
+        self.sensor_temperature = sensors.sensors.SensorDHT22(
                                                 pin=self.pin_temp,
                                                 name="Env.-Sensor",
                                                 node=self.node,
                                                 simulation=self._simulation)
-        self.sensor_light = sensors.SensorLight(
+        self.sensor_light = sensors.sensors.SensorLight(
                                                 pin=self.pin_light,
                                                 name="Light-Sensor",
                                                 node=self.node,

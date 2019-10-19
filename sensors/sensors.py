@@ -11,6 +11,7 @@ logger = logging.getLogger("sensorboard")
 try:
     # Non-existent modules on non-raspberry pi systems
     import Adafruit_DHT
+    import sensors.Adafruit_BME280 as Adafruit_BME280
     import RPi.GPIO as GPIO
     RASPBERRYPI = True
 except ImportError:
@@ -100,6 +101,51 @@ class SensorLight(SensorBase):
         super(SensorLight, self).read()
         if not threaded:
             return self._last_reading
+
+    def __repr__(self):
+        return f"<SensorBase({self._uuid}, {self._pin}, {self.name}, " \
+            f"{self.node}, {self.description}, {self._simulation})>"
+
+
+class SensorBME280(SensorBase, Adafruit_BME280.BME280):
+    def __init__(self, pin=None, name=None, node=None,
+                 description=None, simulation=False, address=0x76):
+        SensorBase.__init__(self, name, node, description)
+        Adafruit_BME280.BME280.__init__(self)
+        self.logger = logging.getLogger("sensorlogger")
+        self._simulation = simulation
+        self._pin = pin
+
+        self.logger.debug(f"<{__class__.__name__} Instance created: "
+                          f"UUID={self._uuid}, Name={self.name}@{self.node}, "
+                          f"pin={self._pin} "
+                          f"description={self.description}>")
+
+    def read(self, threaded=True):
+        """ Read function for hardware sensor explicitely."""
+        if not self._simulation:
+            humidity = self.read_humidity()
+            temperature = self.read_temperature()
+            pressure = self.read_pressure()
+        else:
+            self.logger.warning(f"<{__class__.__name__} uuid={self._uuid}> "
+                                f"Simulate sensor reading")
+            temperature = self._simulate_sensor(lower_limit=14,
+                                                higher_limit=35)
+            humidity = self._simulate_sensor(lower_limit=50, higher_limit=100)
+        self._last_reading = (round(humidity, 2),
+                              round(temperature, 2),
+                              round(pressure, 2))
+        super(SensorBME280, self).read()
+        if not threaded:
+            return self._last_reading
+
+    def __str__(self):
+        return f"<Sensor: UUID: {self._uuid} NAME: {self.name} " \
+               f"NODE: {self.node} DESCR.:{self.description}: " \
+               f"LAST-READ: {self._last_reading[0]}%, " \
+               f"{self._last_reading[1]}°C, " \
+               f"TOTAL-READINGS: {self._number_of_readings}>"
 
     def __repr__(self):
         return f"<SensorBase({self._uuid}, {self._pin}, {self.name}, " \
