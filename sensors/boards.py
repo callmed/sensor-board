@@ -12,6 +12,7 @@ try:
     # Non-existent modules on non-raspberry pi systems
     # Display
     import Adafruit_SSD1306
+    import Adafruit_BME280
     # Image functions
     from PIL import Image
     from PIL import ImageDraw
@@ -34,6 +35,11 @@ except ImportError:
 #     "SENSOR_MEA_HUMIDITY": self.humidity
 # }
 
+I2CADDR_SENSOR_LIGHT_TSL2591 = "29"
+I2CADDR_SENSOR_LIGHT_BME280 = "76"
+I2CADDR_DISPLAY_SSD1306 = "3C"
+
+
 class SensorBoard:
     def __init__(self, node=None, pins={
                                         "ptemp": sensors.PIN_SENSOR_DHT22,
@@ -47,6 +53,8 @@ class SensorBoard:
         self._data_storage = []
         self.pin_temp = pins["ptemp"]
         self.pin_light = pins["plight"]
+
+        self.sensor_bme280 = Adafruit_BME280.BME280()
 
         self.sensor_temperature = sensors.SensorDHT22(
                                                 pin=self.pin_temp,
