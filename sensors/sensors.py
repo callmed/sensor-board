@@ -124,8 +124,8 @@ class SensorBME280(SensorBase, Adafruit_BME280.BME280):
     def read(self, threaded=True):
         """ Read function for hardware sensor explicitely."""
         if not self._simulation:
-            humidity = self.read_humidity()
             temperature = self.read_temperature()
+            humidity = self.read_humidity()
             pressure = self.read_pressure()
         else:
             self.logger.warning(f"<{__class__.__name__} uuid={self._uuid}> "
@@ -133,8 +133,8 @@ class SensorBME280(SensorBase, Adafruit_BME280.BME280):
             temperature = self._simulate_sensor(lower_limit=14,
                                                 higher_limit=35)
             humidity = self._simulate_sensor(lower_limit=50, higher_limit=100)
-        self._last_reading = (round(humidity, 2),
-                              round(temperature, 2),
+        self._last_reading = (round(temperature, 2),
+                              round(humidity, 2),
                               round(pressure, 2))
         super(SensorBME280, self).read()
         if not threaded:

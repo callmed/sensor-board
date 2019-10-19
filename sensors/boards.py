@@ -74,6 +74,9 @@ class SensorBoard:
     def read(self, threaded=True):
         threads = []
 
+        thread_sensor_bme280 = threading.Thread(
+                                        target=self.sensor_bme280.read())
+        threads.append(thread_sensor_bme280)
         thread_sensor_temp = threading.Thread(
                                         target=self.sensor_temperature.read())
         threads.append(thread_sensor_temp)
@@ -90,7 +93,9 @@ class SensorBoard:
 
         self._last_timestamp = datetime.now()
         self._last_reading = (self.sensor_temperature._last_reading
-                              + (self.sensor_light._last_reading, ))
+                              + self.sensor_bme280._last_reading
+                              + (self.sensor_light._last_reading, )
+                              )
         return (self._last_reading + (self._last_timestamp, ))
 
     def store(self, value_return=False):
@@ -111,13 +116,15 @@ class SensorBoard:
     def store2database(self, database) -> bool:
         database_conn = database
 
-        humidity, temperature, light, timestamp = self.store(value_return=True)
+        (dht_humidity, dht_temperature,
+            bme_temperature, bme_humidity, bme_pressure,
+            light, timestamp) = self.store(value_return=True)
 
         new_entity = MeasurementModel(node_uuid=str(self._uuid),
                                       timestamp=timestamp,
-                                      temperature=temperature,
-                                      humidity=humidity,
-                                      pressure=None,
+                                      temperature=bme_temperature,
+                                      humidity=bme_humidity,
+                                      pressure=bme_pressure,
                                       light_on=light)
         database_conn.add(new_entity)
         database_conn.commit()
@@ -159,7 +166,9 @@ class SensorBoard:
         value_light = False
         time = None
 
-        value_humi, value_temp, value_light, time = self._data_storage[-1]
+        (dht_value_humi, dht_value_temp,
+            bme_temp, bme_humi, bme_pres,
+            value_light, time) = self._data_storage[-1]
 
         width = self.disp.width
         height = self.disp.height
