@@ -1,4 +1,4 @@
-import sensors.sensors
+from sensors.sensors import PIN_SENSOR_DHT22, PIN_SENSOR_LIGHT, SensorLight, SensorDHT22, SensorBME280
 from datetime import datetime
 from datastorage.database_declaration import MeasurementModel, exc
 from uuid import uuid4
@@ -39,8 +39,8 @@ except ImportError:
 # ToDo: Make results available as dictionarys
 class SensorBoard:
     def __init__(self, node=None, pins={
-                                "ptemp": sensors.sensors.PIN_SENSOR_DHT22,
-                                "plight": sensors.sensors.PIN_SENSOR_LIGHT},
+                                "ptemp": PIN_SENSOR_DHT22,
+                                "plight": PIN_SENSOR_LIGHT},
                  description=None, simulation=False):
         self.logger = logging.getLogger(__name__)
         self._uuid = uuid4()
@@ -51,17 +51,17 @@ class SensorBoard:
         self.pin_temp = pins["ptemp"]
         self.pin_light = pins["plight"]
 
-        self.sensor_bme280 = sensors.sensors.SensorBME280(
+        self.sensor_bme280 = SensorBME280(
                                                 pin=None,
                                                 name="BME280",
                                                 node=self.node,
                                                 simulation=self._simulation)
-        self.sensor_temperature = sensors.sensors.SensorDHT22(
+        self.sensor_temperature = SensorDHT22(
                                                 pin=self.pin_temp,
                                                 name="Env.-Sensor",
                                                 node=self.node,
                                                 simulation=self._simulation)
-        self.sensor_light = sensors.sensors.SensorLight(
+        self.sensor_light = SensorLight(
                                                 pin=self.pin_light,
                                                 name="Light-Sensor",
                                                 node=self.node,

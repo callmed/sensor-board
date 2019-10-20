@@ -7,6 +7,8 @@ import logging
 RASPBERRYPI = False
 logger = logging.getLogger("sensorboard")
 
+PIN_SENSOR_DHT22 = 4
+PIN_SENSOR_LIGHT = 27
 
 try:
     # Non-existent modules on non-raspberry pi systems
@@ -17,9 +19,6 @@ try:
 except ImportError:
     RASPBERRYPI = False
     logger.warning("Module not found")
-
-PIN_SENSOR_DHT22 = 4
-PIN_SENSOR_LIGHT = 27
 
 
 class SensorBase:

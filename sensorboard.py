@@ -6,12 +6,12 @@ import time
 import datastorage.database_declaration as db_declaration
 import datastorage.data_plot as dplot
 import sensors.boards as boards
-from sensors.sensors import PIN_SENSOR_DHT22, PIN_SENSOR_LIGHT, RASPBERRYPI
+import sensors.sensors as sensors
 
 if os.uname()[4][:3] == "arm":
-    RASPBERRYPI = True
+    sensors.RASPBERRYPI = True
 else:
-    RASPBERRYPI = False
+    sensors.RASPBERRYPI = False
 
 try:
     # Non-existent modules?!
@@ -36,20 +36,10 @@ def signal_handler_termination(sig, frame):
     logger.info("Program terminated from outter space")
     sys.exit(1)
 
-
-# import sensors.Adafruit_BME280
-# bme280 = sensors.Adafruit_BME280.BME280()
-
-
-# DEMO BME280
-# def demo_bme280():
-#    print(f"Temp: {bme280.read_temperature()}, "
-#          f"Humid: {bme280.read_humidity()}, "
-#          f"Pres: {bme280.read_pressure()}")
-
-
+# ToDo: Re-desgin the basic start up proceture to run only on raspb. For data
+#       presenting or analysing own scripts are used.
 def main():
-    if not RASPBERRYPI:
+    if not sensors.RASPBERRYPI:
         # Print sensor data only in non-raspberry mode due to missing display
         data = dplot.read_data_from_db(db_declaration.session,
                                        db_declaration.MeasurementModel)
@@ -57,8 +47,8 @@ def main():
     else:
         sensorboard = boards.SensorBoard(node="RPI-BRD",
                                          pins={
-                                            "ptemp": PIN_SENSOR_DHT22,
-                                            "plight": PIN_SENSOR_LIGHT},
+                                            "ptemp": boards.PIN_SENSOR_DHT22,
+                                            "plight": boards.PIN_SENSOR_LIGHT},
                                          simulation=False)
         # ToDo: Include display init into board class init
         # ToDo: Show logo after display init
@@ -101,7 +91,7 @@ if __name__ == "__main__":
 
     logger = logging.getLogger("sensorboard")
     # ToDo: Make script arguments available
-    if RASPBERRYPI:
+    if sensors.RASPBERRYPI:
         logger.debug("RaspberryPi mode active")
     else:
         logger.debug("Non-RaspberryPi mode")
