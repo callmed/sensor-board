@@ -1,8 +1,7 @@
-from systemd import journal
 import logging
+from systemd import journal
 
-
-logger = logging.getLogger("sensorboard.notification")
+logger = logging.getLogger(__name__)
 
 
 class JournalCtlNotification:
