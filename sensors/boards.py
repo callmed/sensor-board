@@ -12,7 +12,6 @@ try:
     # Non-existent modules on non-raspberry pi systems
     # Display
     import Adafruit_SSD1306
-    import sensors.Adafruit_BME280
     # Image functions
     from PIL import Image
     from PIL import ImageDraw
@@ -182,7 +181,7 @@ class SensorBoard:
 
         self.draw.rectangle((0, 0, width, height), outline=0, fill=0)
         self.draw.text((x, top), "Sensor-Board v1", font=font, fill=255)
-        self.draw.text((x, top+8), f"T:{value_temp}°C H:{value_humi}%",
+        self.draw.text((x, top+8), f"T:{bme_value_temp}°C H:{bme_value_humi}%",
                        font=font, fill=255)
         self.draw.text((x, top+16), f"L:{value_light}", font=font, fill=255)
         self.draw.text((x, top+24), f"{time}", font=font, fill=255)
