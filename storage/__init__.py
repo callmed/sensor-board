@@ -2,15 +2,15 @@
 # Author: Daniel P
 # Contact: daniel.plev@gmail.com
 
-"""A package for Journald notifications. These message type is only available
-    on Linux system.
-"""
+"""A package to store and/or save data. """
 
 
-__all__ = ['notification', 'JournalCtlNotification']
+__all__ = ['storage', 'Storage']
 
 import logging
 from sys import stdout
+from .storage import Storage
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -27,11 +27,6 @@ file_handler.setFormatter(formatter)
 
 logger.addHandler(file_handler)
 logger.addHandler(console_handler)
-
-try:
-    from .notification import JournalCtlNotification
-except ImportError:
-    logger.exception("Failure in loading module")
 
 __version__ = '1.0'
 __author__ = "Daniel P"

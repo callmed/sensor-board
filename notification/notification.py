@@ -1,7 +1,25 @@
 import logging
-from systemd import journal
+from sys import exit
+from platform import system
 
 logger = logging.getLogger(__name__)
+
+try:
+    from systemd import journal
+except ModuleNotFoundError:
+    logger.exception(
+                "NOTE: Journald notifications are not available in MS Windows "
+                "on Linux install the missing package")
+    exit(1)
+
+except ImportError:
+    if system() != "Linux":
+        logger.exception(
+                "NOTE: Journald notifications are not available in MS Windows")
+    exit(1)
+
+
+__all__ = ["JournalCtlNotification"]
 
 
 class JournalCtlNotification:
@@ -20,7 +38,7 @@ class JournalCtlNotification:
         self._payload = dict()
         self.logger.debug(f"<{__class__.__name__} Instance created: "
                           f"message-id={self.__message_id}, "
-                          f"source={self.__sensor_id}@{self._node_id}>")
+                          f"source={self.__sensor_id}@{self.__node_id}>")
 
     def update(self, **kwargs) -> bool:
         """ Changes the value of given keywords. Not existing keywords
