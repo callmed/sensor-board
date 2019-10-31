@@ -1,5 +1,3 @@
-from uuid import uuid4
-from random import uniform, randint
 # import threading
 import logging
 
@@ -10,8 +8,6 @@ logger = logging.getLogger("sensorboard")
 
 try:
     # Non-existent modules on non-raspberry pi systems
-    import Adafruit_DHT
-    import RPi.GPIO as GPIO
     # Display
     import Adafruit_SSD1306
     # Image functions

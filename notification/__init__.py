@@ -6,11 +6,10 @@
     on Linux system.
 """
 
-
-__all__ = ['notification', 'JournalCtlNotification']
-
 import logging
-from sys import stdout
+from sys import stdout, exit
+from platform import system
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -20,13 +19,17 @@ formatter = logging.Formatter("%(levelname)-7s %(asctime)-19s.%(msecs)03d |"
 console_handler = logging.StreamHandler(stdout)
 console_handler.setLevel(logging.DEBUG)
 console_handler.setFormatter(formatter)
-
-file_handler = logging.FileHandler(__package__ + ".log")
-file_handler.setLevel(logging.DEBUG)
-file_handler.setFormatter(formatter)
-
-logger.addHandler(file_handler)
 logger.addHandler(console_handler)
+
+# file_handler = logging.FileHandler(__package__ + ".log")
+# file_handler.setLevel(logging.DEBUG)
+# file_handler.setFormatter(formatter)
+# logger.addHandler(file_handler)
+
+if system() != "Linux":
+    logger.error("The system calling this module is not Linux but Journald "
+                 "only works with Linux.")
+    exit(1)
 
 try:
     from .notification import JournalCtlNotification
@@ -34,4 +37,5 @@ except ImportError:
     logger.exception("Failure in loading module")
 
 __version__ = '1.0'
-__author__ = "Daniel P"
+__author__ = "Daniel P."
+__all__ = ['notification']
